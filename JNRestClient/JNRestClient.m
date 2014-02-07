@@ -3,7 +3,7 @@
 //
 //
 //  Created by Joao Nunes on 12/07/13.
-//
+//  https://github.com/jonasman/JNRestClient
 //
 
 #import "JNRestClient.h"
