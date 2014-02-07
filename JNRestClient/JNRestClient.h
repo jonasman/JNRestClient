@@ -20,12 +20,14 @@ typedef NS_ENUM(NSInteger, RestMethod)
 
 @property (nonatomic,readonly) NSURL * url;
 
-@property (nonatomic) RestMethod method; // Default GET
+@property (nonatomic) RestMethod method; // Defaults to GET
 @property (nonatomic) NSData * data;
 
 
-@property (nonatomic) BOOL ignoreCertificateValidation; // Default NO
+@property (nonatomic) BOOL ignoreCertificateValidation; // Defaults to NO
 
-- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler;
+
+
+- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler; // Completion handler will be called in a background Queue
 
 @end
