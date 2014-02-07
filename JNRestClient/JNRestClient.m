@@ -10,7 +10,7 @@
 
 @interface JNRestClient ()
 
-@property (nonatomic,strong) void (^completionHandler)(id resultJson);
+@property (nonatomic) NSURL * url;
 
 @end
 
@@ -30,8 +30,10 @@
     return self;
 }
 
-- (void)startWithCompletionHandler:(void(^)(NSData * result))handler
+- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler
 {
+    
+    self.url = url;
     
     __typeof(&*self) __weak weakSelf = self;
 
