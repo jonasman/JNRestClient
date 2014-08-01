@@ -16,7 +16,6 @@
 
 @implementation JNRestClient
 {
-    NSURLConnection * conn;
 	NSURLSession * session;
     NSData * dataReceived;
 }
