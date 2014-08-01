@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, RestMethod)
 @property (nonatomic,readonly) NSURL * url;
 
 @property (nonatomic) RestMethod method; // Defaults to GET
-@property (nonatomic) NSData * data;
+@property (nonatomic) NSData * postData;
 
 
 @property (nonatomic) BOOL ignoreCertificateValidation; // Defaults to NO
