@@ -51,7 +51,7 @@
     self.restClient.method = RestMethodGet;
     
     // Start our request to URL
-    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result) {
+    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result,NSError * error) {
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
@@ -78,7 +78,7 @@
     self.restClient.data = [@"Test" dataUsingEncoding:NSUTF8StringEncoding];
     
     // Start our POST request to URL
-    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result) {
+    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result,NSError * error) {
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];

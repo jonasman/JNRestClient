@@ -28,6 +28,6 @@ typedef NS_ENUM(NSInteger, RestMethod)
 
 
 
-- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler; // Completion handler will be called in a background Queue
+- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result,NSError * error))handler;// Completion handler will be called in a background Queue
 
 @end

@@ -30,7 +30,7 @@
     return self;
 }
 
-- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler
+- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result,NSError * error))handler
 {
     
     self.url = url;
@@ -41,22 +41,22 @@
         
         
         NSData * serverResponse;
-        NSError * error;
+        NSError * errorFromResponse;
         
         if (weakSelf.method == RestMethodGet)
         {
-            serverResponse = [weakSelf doGetRequestError:&error];
+            serverResponse = [weakSelf doGetRequestError:&errorFromResponse];
         }
         else if(weakSelf.method == RestMethodPost)
         {
-            serverResponse = [weakSelf doPostRequest];
+            serverResponse = [weakSelf doPostRequest:&errorFromResponse];
         }
         
         
         
         if (serverResponse && handler)
         {
-            handler(serverResponse);
+            handler(serverResponse,errorFromResponse);
         }
         
         
@@ -77,7 +77,7 @@
 }
 
 
-- (NSData *)doPostRequest
+- (NSData *)doPostRequest:(NSError **)error
 {
     
     NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)[self.data length]];
@@ -96,9 +96,8 @@
     if (!self.ignoreCertificateValidation)
     {
         // if We dont need to ignore the certificate we can use the sync mode
-        NSError * error;
         NSHTTPURLResponse * response;
-        NSData * data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+        NSData * data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:error];
         
         dataReceived = data;
         
