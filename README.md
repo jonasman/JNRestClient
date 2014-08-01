@@ -6,10 +6,10 @@ A Dead simple rest client
 Getting Started
 ============
 
-1. Add the JNRestClient code into your project.
+1. Copy JNRestClient classes into your project.
 2. `restClient = [[JNRestClient alloc] init];`
 3. If you need to send data in a POST, add the data to: `restClient.data`
-4. Start a request with `- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler` 
+4. Start a request with `- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result,NSError * error))handler` 
 
 
 
