@@ -34,54 +34,46 @@
 {
     
     self.url = url;
-    
-    __typeof(&*self) __weak weakSelf = self;
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        
-		NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-		NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+	
+	NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+	
+	
+	if (self.method == RestMethodGet)
+	{
 		
-        
-        if (weakSelf.method == RestMethodGet)
-        {
-			
-			NSURLSessionDataTask * dataTask =
-			[defaultSession dataTaskWithURL:self.url
-						  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-							  
-							  handler(data,error);
-							  
-						  }];
-			
-			[dataTask resume];
-
-        }
+		NSURLSessionDataTask * dataTask =
+		[defaultSession dataTaskWithURL:self.url
+					  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+						  
+						  handler(data,error);
+						  
+					  }];
 		
-        else if(weakSelf.method == RestMethodPost)
-        {
-			NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)[self.postData length]];
-			
-			
-			NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url];
-			
-			[request setHTTPMethod:@"POST"];
-			[request setValue:postLength forHTTPHeaderField:@"Content-length"];
-			[request setHTTPBody:self.postData];
-			
-			NSURLSessionDataTask * dataTask =
-			[defaultSession uploadTaskWithRequest:request fromData:self.postData completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-				handler(data,error);
-			}];
-			
-			[dataTask resume];
-
-        }
-
-        
-        
-    });
+		[dataTask resume];
+		
+	}
+	
+	else if(self.method == RestMethodPost)
+	{
+		NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)[self.postData length]];
+		
+		
+		NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url];
+		
+		[request setHTTPMethod:@"POST"];
+		[request setValue:postLength forHTTPHeaderField:@"Content-length"];
+		[request setHTTPBody:self.postData];
+		
+		NSURLSessionDataTask * dataTask =
+		[defaultSession uploadTaskWithRequest:request fromData:self.postData completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+			handler(data,error);
+		}];
+		
+		[dataTask resume];
+		
+	}
+	
 }
 
 #pragma mark URLSession delegate
