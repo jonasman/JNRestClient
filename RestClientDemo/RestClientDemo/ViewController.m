@@ -56,12 +56,15 @@
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
-        
-        // Update the UI
-		if (error)
-			weakSelf.resultsTextView.text = [error description];
-		else
-			weakSelf.resultsTextView.text = results;
+		
+		// Update the UI in Main queue
+		dispatch_async(dispatch_get_main_queue(), ^{
+
+			if (error)
+				weakSelf.resultsTextView.text = [error description];
+			else
+				weakSelf.resultsTextView.text = results;
+		});
         
         
     }];
@@ -86,12 +89,13 @@
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
         
-        // Update the UI
-		
-		if (error)
-			weakSelf.resultsTextView.text = [error description];
-		else
-			weakSelf.resultsTextView.text = results;
+        // Update the UI in main queue
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (error)
+				weakSelf.resultsTextView.text = [error description];
+			else
+				weakSelf.resultsTextView.text = results;
+		});
         
         
     }];
