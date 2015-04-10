@@ -8,7 +8,7 @@
 
 #import "JNRestClient.h"
 
-@interface JNRestClient ()
+@interface JNRestClient () <NSURLSessionDelegate>
 
 @property (nonatomic) NSURL * url;
 
@@ -16,11 +16,11 @@
 
 @implementation JNRestClient
 {
-    NSURLConnection * conn;
+	NSURLSession * session;
     NSData * dataReceived;
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (self) {
@@ -30,115 +30,62 @@
     return self;
 }
 
-- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result))handler
+- (void)startWithURL:(NSURL *)url andCompletionHandler:(void(^)(NSData * result,NSError * error))handler
 {
     
     self.url = url;
-    
-    __typeof(&*self) __weak weakSelf = self;
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        
-        NSData * serverResponse;
-        NSError * error;
-        
-        if (weakSelf.method == RestMethodGet)
-        {
-            serverResponse = [weakSelf doGetRequestError:&error];
-        }
-        else if(weakSelf.method == RestMethodPost)
-        {
-            serverResponse = [weakSelf doPostRequest];
-        }
-        
-        
-        
-        if (serverResponse && handler)
-        {
-            handler(serverResponse);
-        }
-        
-        
-    });
+	
+	NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject delegate:self delegateQueue:[NSOperationQueue new]];
+	
+	
+	if (self.method == RestMethodGet)
+	{
+		
+		NSURLSessionDataTask * dataTask =
+		[defaultSession dataTaskWithURL:self.url
+					  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+						  
+						  handler(data,error);
+						  
+					  }];
+		
+		[dataTask resume];
+		
+	}
+	
+	else if(self.method == RestMethodPost)
+	{
+		NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)[self.postData length]];
+		
+		
+		NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url];
+		
+		[request setHTTPMethod:@"POST"];
+		[request setValue:postLength forHTTPHeaderField:@"Content-length"];
+		[request setHTTPBody:self.postData];
+		
+		NSURLSessionDataTask * dataTask =
+		[defaultSession uploadTaskWithRequest:request fromData:self.postData completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+			handler(data,error);
+		}];
+		
+		[dataTask resume];
+		
+	}
+	
 }
 
-#pragma mark Get and Post requests
+#pragma mark URLSession delegate
 
-- (NSData *)doGetRequestError:(NSError **)error
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
 {
-    
-    NSData * serverResponse = [NSData dataWithContentsOfURL:self.url options:NSDataReadingUncached error:error];
-    
-    if (*error)
-        NSLog(@"GET Error: %@",*error);
-    
-    return serverResponse;
-}
-
-
-- (NSData *)doPostRequest
-{
-    
-    NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)[self.data length]];
- 
- 
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url];
- 
-    [request setHTTPMethod:@"POST"];
-    [request setValue:postLength forHTTPHeaderField:@"Content-length"];
-    [request setHTTPBody:self.data];
- 
- 
-
-
-    
-    if (!self.ignoreCertificateValidation)
-    {
-        // if We dont need to ignore the certificate we can use the sync mode
-        NSError * error;
-        NSHTTPURLResponse * response;
-        NSData * data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-        
-        dataReceived = data;
-        
-        // if (error) NSLog(@"POST Error: %@",error);
-    }
-    else
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            conn = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-            [conn scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-            [conn start];
-            
-        });
-    }
-    
-    while (!dataReceived) {}
-    
-    return dataReceived;
-}
-
-#pragma mark Connection delegeate to ignore the server certificate error
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    NSLog(@"Error: %@",error);
-}
-
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-
-        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] ;
- 
-        [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
-    
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-    dataReceived  = data;
+	if (self.ignoreCertificateValidation)
+		completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust])
+		;
+	else
+		completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust])
+		;
 }
 
 

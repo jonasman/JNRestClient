@@ -44,22 +44,27 @@
 - (IBAction)doGET:(UIButton *)sender
 {
     
-    NSURL * url = [NSURL URLWithString:@"https://public.opencpu.org/ocpu/library/"];
+    NSURL * url = [NSURL URLWithString:@"https://www.pcwebshop.co.uk"];
     
     __typeof(&*self) __weak weakSelf = self;
 
     self.restClient.method = RestMethodGet;
+	self.restClient.ignoreCertificateValidation = YES;
     
     // Start our request to URL
-    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result) {
+    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result,NSError * error) {
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
-        
-        // Update the UI in Main Queue
-        dispatch_async(dispatch_get_main_queue(), ^{
-            weakSelf.resultsTextView.text = results;
-        });
+		
+		// Update the UI in Main queue
+		dispatch_async(dispatch_get_main_queue(), ^{
+
+			if (error)
+				weakSelf.resultsTextView.text = [error description];
+			else
+				weakSelf.resultsTextView.text = results;
+		});
         
         
     }];
@@ -74,19 +79,23 @@
     __typeof(&*self) __weak weakSelf = self;
     
     self.restClient.method = RestMethodPost;
+
     // Add some NSData to the request
-    self.restClient.data = [@"Test" dataUsingEncoding:NSUTF8StringEncoding];
+    self.restClient.postData = [@"Test" dataUsingEncoding:NSUTF8StringEncoding];
     
     // Start our POST request to URL
-    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result) {
+    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result,NSError * error) {
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
         
-        // Update the UI in Main Queue
-        dispatch_async(dispatch_get_main_queue(), ^{
-            weakSelf.resultsTextView.text = results;
-        });
+        // Update the UI in main queue
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (error)
+				weakSelf.resultsTextView.text = [error description];
+			else
+				weakSelf.resultsTextView.text = results;
+		});
         
         
     }];
