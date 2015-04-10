@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CF47F6241AD817FF0034360A /* NSURL+JNRestClient.m in Sources */ = {isa = PBXBuildFile; fileRef = CF47F6231AD817FF0034360A /* NSURL+JNRestClient.m */; };
 		CF567E3918A51BF0000CFDB5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF567E3818A51BF0000CFDB5 /* Foundation.framework */; };
 		CF567E3B18A51BF0000CFDB5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF567E3A18A51BF0000CFDB5 /* CoreGraphics.framework */; };
 		CF567E3D18A51BF0000CFDB5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF567E3C18A51BF0000CFDB5 /* UIKit.framework */; };
@@ -35,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CF47F6221AD817FF0034360A /* NSURL+JNRestClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+JNRestClient.h"; sourceTree = "<group>"; };
+		CF47F6231AD817FF0034360A /* NSURL+JNRestClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+JNRestClient.m"; sourceTree = "<group>"; };
 		CF567E3518A51BF0000CFDB5 /* RestClientDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RestClientDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF567E3818A51BF0000CFDB5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CF567E3A18A51BF0000CFDB5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -161,6 +164,8 @@
 			children = (
 				CF567E6E18A51C1F000CFDB5 /* JNRestClient.h */,
 				CF567E6F18A51C1F000CFDB5 /* JNRestClient.m */,
+				CF47F6221AD817FF0034360A /* NSURL+JNRestClient.h */,
+				CF47F6231AD817FF0034360A /* NSURL+JNRestClient.m */,
 			);
 			name = JNRestClient;
 			path = ../JNRestClient;
@@ -267,6 +272,7 @@
 				CF567E4F18A51BF0000CFDB5 /* ViewController.m in Sources */,
 				CF567E4918A51BF0000CFDB5 /* AppDelegate.m in Sources */,
 				CF567E4518A51BF0000CFDB5 /* main.m in Sources */,
+				CF47F6241AD817FF0034360A /* NSURL+JNRestClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
