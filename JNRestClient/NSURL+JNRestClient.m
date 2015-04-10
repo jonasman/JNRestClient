@@ -8,53 +8,76 @@
 
 #import "NSURL+JNRestClient.h"
 
+@interface NSURL () <NSURLSessionDelegate>
+
+@end
+
 @implementation NSURL (JNRestClient)
 
-- (void)GETWithCompletionHandler:(void(^)(NSData * result))handler
+- (void)GETWithCompletionHandler:(void(^)(id result,NSError * error))handler
 {
+    
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject delegate:self delegateQueue:[NSOperationQueue new]];
+    
+    NSURLSessionDataTask * dataTask =
+    [defaultSession dataTaskWithURL:self
+                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                      
+                      id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                      
+                      handler(json,error);
+                      
+                  }];
+    
+    [dataTask resume];
     
 }
 
-- (void)POSTJson:(id/*<NSArray or NSDictionary>*/)json WithCompletionHandler:(void(^)(NSData * result))handler
+- (void)POSTJson:(id)json WithCompletionHandler:(void(^)(id result,NSError * error))handler
 {
+ 
+    NSError * error;
+    NSData * jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:&error];
+    if (error)
+    {
+        handler(nil,error);
+    }
     
-    __weak typeof(self)weakSelf = self;
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject delegate:self delegateQueue:[NSOperationQueue new]];
+   
+    NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)jsonData.length];
+    
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setValue:postLength forHTTPHeaderField:@"Content-length"];
+    [request setHTTPBody:jsonData];
+    
+    NSURLSessionDataTask * dataTask =
+    [defaultSession uploadTaskWithRequest:request fromData:jsonData completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        handler(json,error);
+        
+    }];
+    
+    [dataTask resume];
+    
+}
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        NSData * jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
-        
-        NSString *postLength = [NSString stringWithFormat:@"%lu",(unsigned long)jsonData.length];
-        
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:weakSelf];
-        
-        [request setHTTPMethod:@"POST"];
-        [request setValue:postLength forHTTPHeaderField:@"Content-length"];
-        [request setHTTPBody:jsonData];
-        
-        if (YES)//!self.ignoreCertificateValidation)
-        {
-            // if We dont need to ignore the certificate we can use the sync mode
-            NSError * error;
-            NSHTTPURLResponse * response;
-            NSData * data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-            
-            dataReceived = data;
-            
-            // if (error) NSLog(@"POST Error: %@",error);
-        }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                conn = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-                [conn scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-                [conn start];
-                
-            });
-        }
+#pragma mark URLSession delegate
 
-        
-    });
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
+{
+    if (YES)//self.ignoreCertificateValidation)
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust])
+        ;
+    else
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust])
+        ;
 }
 
 @end

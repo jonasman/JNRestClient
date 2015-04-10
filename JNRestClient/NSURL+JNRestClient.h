@@ -10,4 +10,7 @@
 
 @interface NSURL (JNRestClient)
 
+- (void)GETWithCompletionHandler:(void(^)(id result,NSError * error))handler;
+- (void)POSTJson:(id/*<NSArray or NSDictionary>*/)json WithCompletionHandler:(void(^)(id result,NSError * error))handler;
+
 @end

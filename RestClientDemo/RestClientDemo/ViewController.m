@@ -8,11 +8,13 @@
 
 #import "ViewController.h"
 #import "JNRestClient.h"
+#import "NSURL+JNRestClient.h"
 
 @interface ViewController ()
 
 @property (weak, nonatomic) IBOutlet UITextView *resultsTextView;
 @property (nonatomic) JNRestClient * restClient;
+@property (nonatomic) NSURL * url;
 
 @end
 
@@ -44,7 +46,7 @@
 - (IBAction)doGET:(UIButton *)sender
 {
     
-    NSURL * url = [NSURL URLWithString:@"https://www.pcwebshop.co.uk"];
+    self.url = [NSURL URLWithString:@"http://www.telize.com/jsonip"];
     
     __typeof(&*self) __weak weakSelf = self;
 
@@ -52,7 +54,7 @@
 	self.restClient.ignoreCertificateValidation = YES;
     
     // Start our request to URL
-    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result,NSError * error) {
+    [self.restClient startWithURL:self.url andCompletionHandler:^(NSData *result,NSError * error) {
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
@@ -69,22 +71,34 @@
         
     }];
     
+    [self.url GETWithCompletionHandler:^(id result, NSError *error) {
+        
+        NSLog(@"Result: %@",result);
+        
+    }];
+    
+    
+    
 }
 - (IBAction)doPOST:(UIButton *)sender {
     
     
     
-    NSURL * url = [NSURL URLWithString:@"https://public.opencpu.org/ocpu/library/"];
+    self.url = [NSURL URLWithString:@"http://jsonplaceholder.typicode.com/posts"];
     
     __typeof(&*self) __weak weakSelf = self;
     
     self.restClient.method = RestMethodPost;
 
+    NSDictionary * json = @{@"title":@"foo",
+                            @"body":@"barr",
+                            @"userId":@1};
+    
     // Add some NSData to the request
-    self.restClient.postData = [@"Test" dataUsingEncoding:NSUTF8StringEncoding];
+    self.restClient.postData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
     
     // Start our POST request to URL
-    [self.restClient startWithURL:url andCompletionHandler:^(NSData *result,NSError * error) {
+    [self.restClient startWithURL:self.url andCompletionHandler:^(NSData *result,NSError * error) {
         
         // Convert our NSData to NSString
         NSString * results = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
@@ -97,6 +111,13 @@
 				weakSelf.resultsTextView.text = results;
 		});
         
+        
+    }];
+    
+    
+    [self.url POSTJson:json WithCompletionHandler:^(id result, NSError *error) {
+        
+        NSLog(@"Result: %@",result);
         
     }];
 }
