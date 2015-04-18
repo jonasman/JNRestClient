@@ -70,9 +70,11 @@
         
         
     }];
-    
-    [self.url GETWithCompletionHandler:^(id result, NSError *error) {
-        
+	
+	NSDictionary * options = @{JNRestClientHEADERS_KEY: @{@"X":@"TEST"}};
+	
+	[self.url GETWithOptions:options completionHandler:^(id result, NSError *error) {
+		
         NSLog(@"Result: %@",result);
         
     }];
@@ -114,9 +116,8 @@
         
     }];
     
-    
-    [self.url POSTJson:json WithCompletionHandler:^(id result, NSError *error) {
-        
+    [self.url POSTJson:json withCompletionHandler:^(id result, NSError *error) {
+
         NSLog(@"Result: %@",result);
         
     }];
