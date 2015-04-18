@@ -74,7 +74,7 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 	if (headers && [headers isKindOfClass:[NSDictionary class]])
 	{
 		for (NSString * key in headers) {
-			[request addValue:key forHTTPHeaderField:headers[key]];
+			[request addValue:headers[key] forHTTPHeaderField:key];
 		}
 	}
 
