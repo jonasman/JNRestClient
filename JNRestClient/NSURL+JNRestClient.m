@@ -7,6 +7,9 @@
 //
 
 
+#import "NSURL+JNRestClient.h"
+#import <objc/runtime.h>
+
 static char const * const currentTaskKey = "currentTaskKey";
 
 
@@ -15,8 +18,6 @@ NSString * const JNRestClientIGNORE_CERT_KEY = @"JNRestClientIGNORE_CERT_KEY";
 
 NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 
-#import "NSURL+JNRestClient.h"
-#import <objc/runtime.h>
 
 @interface NSURL () <NSURLSessionDelegate>
 
