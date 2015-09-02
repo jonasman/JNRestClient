@@ -48,12 +48,12 @@
     
     self.url = [NSURL URLWithString:@"http://www.telize.com/jsonip"];
     
-	
+	  __typeof(&*self) __weak weakSelf = self;
 	
 	/*
 	 // Method 1
 	
-	  __typeof(&*self) __weak weakSelf = self;
+
 	 
 	 self.restClient.method = RestMethodGet;
 	 self.restClient.ignoreCertificateValidation = YES;
@@ -81,6 +81,17 @@
 	NSDictionary * options = @{JNRestClientHEADERS_KEY: @{@"X":@"TEST"}};
 	
 	[self.url GETWithOptions:options completionHandler:^(id result, NSError *error) {
+		
+		// Update the UI in Main queue
+		dispatch_async(dispatch_get_main_queue(), ^{
+			
+			if (error)
+				weakSelf.resultsTextView.text = [error description];
+			else
+				weakSelf.resultsTextView.text = [result description];
+		});
+	 
+
 		
         NSLog(@"Result: %@",result);
         
