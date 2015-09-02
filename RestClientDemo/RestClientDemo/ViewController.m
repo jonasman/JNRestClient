@@ -48,10 +48,12 @@
     
     self.url = [NSURL URLWithString:@"http://www.telize.com/jsonip"];
     
-    __typeof(&*self) __weak weakSelf = self;
+	
 	
 	/*
 	 // Method 1
+	
+	  __typeof(&*self) __weak weakSelf = self;
 	 
 	 self.restClient.method = RestMethodGet;
 	 self.restClient.ignoreCertificateValidation = YES;
