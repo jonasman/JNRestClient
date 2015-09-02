@@ -7,18 +7,34 @@
 //
 
 
+static char const * const currentTaskKey = "currentTaskKey";
+
+
 NSString * const JNRestClientHEADERS_KEY = @"JNRestClientHEADERS_KEY";
 NSString * const JNRestClientIGNORE_CERT_KEY = @"JNRestClientIGNORE_CERT_KEY";
 
 NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 
 #import "NSURL+JNRestClient.h"
+#import <objc/runtime.h>
 
 @interface NSURL () <NSURLSessionDelegate>
+
+@property (nonatomic) NSURLSessionTask * currentTask;
 
 @end
 
 @implementation NSURL (JNRestClient)
+
+#pragma mark Property
+
+- (NSURLSessionTask *)currentTask {
+	return objc_getAssociatedObject(self, currentTaskKey);
+}
+
+- (void)setCurrentTask:(NSURLSessionTask *)currentTask {
+	objc_setAssociatedObject(self, currentTaskKey, currentTask, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 
 #pragma mark GET
 - (void)GETWithCompletionHandler:(void(^)(id result,NSError * error))handler
@@ -40,6 +56,13 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 {
 	[self performMethod:@"POST" withJson:json options:options withCompletionHandler:handler];
 }
+#pragma mark Cancel
+
+- (void)cancelRequest
+{
+	[self.currentTask cancel];
+}
+
 #pragma mark Common
 - (void)performMethod:(NSString *)method withJson:(id)json options:(NSDictionary *)options withCompletionHandler:(void(^)(id result,NSError * error))handler
 {
@@ -77,14 +100,13 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 			[request addValue:headers[key] forHTTPHeaderField:key];
 		}
 	}
-
+	
 	if (jsonData){
 		[request setValue:postLength forHTTPHeaderField:@"Content-length"];
 		[request setHTTPBody:jsonData];
 	}
 	
 	
-	NSURLSessionTask * dataTask;
 	
 	void (^completionHandler)(NSData *data, NSURLResponse *response, NSError *error) = ^(NSData *data, NSURLResponse *response, NSError *error) {
 		
@@ -92,27 +114,27 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 		handler(json,error);
 		
 	};
-
+	
 	
 	if ([method isEqualToString:@"POST"])
 	{
 		NSURLSessionDataTask * uploadDataTask =
 		[defaultSession uploadTaskWithRequest:request fromData:jsonData completionHandler:completionHandler];
 		
-		dataTask = uploadDataTask;
+		self.currentTask = uploadDataTask;
 	}
 	else if ([method isEqualToString:@"GET"])
 	{
-		dataTask =
+		self.currentTask  =
 		[defaultSession dataTaskWithRequest:request completionHandler:completionHandler];
 		
 	}
 	
 	BOOL invalidCert = [options[JNRestClientIGNORE_CERT_KEY] boolValue];
 	if (invalidCert)
-		dataTask.taskDescription = JNRESTCLIENT_INVALID_CERT;
+		self.currentTask.taskDescription = JNRESTCLIENT_INVALID_CERT;
 	
-	[dataTask resume];
+	[self.currentTask  resume];
 	
 }
 
@@ -122,10 +144,10 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 {
 	BOOL ignoreCertificate = [task.taskDescription isEqualToString:JNRESTCLIENT_INVALID_CERT];
 	
-    if (ignoreCertificate)
-        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
-    else
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+	if (ignoreCertificate)
+		completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+	else
+		completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
 }
 
 @end

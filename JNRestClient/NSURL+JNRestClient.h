@@ -54,4 +54,10 @@ extern NSString * const JNRestClientIGNORE_CERT_KEY; // NSNumber, BOOL
  */
 - (void)POSTJson:(id)json options:(NSDictionary *)options withCompletionHandler:(void(^)(id result,NSError * error))handler;
 
+/**
+ *  Cancels current request
+ *
+ */
+- (void)cancelRequest;
+
 @end
