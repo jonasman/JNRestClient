@@ -111,8 +111,13 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 	
 	void (^completionHandler)(NSData *data, NSURLResponse *response, NSError *error) = ^(NSData *data, NSURLResponse *response, NSError *error) {
 		
-		id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-		handler(json,error);
+		if (error) {
+			handler(nil,error);
+		}
+		else {
+			id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+			handler(json,error);
+		}
 		
 	};
 	
