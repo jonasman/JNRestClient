@@ -103,7 +103,7 @@ NSString * const JNRESTCLIENT_INVALID_CERT = @"JNRESTCLIENT_INVALID_CERT";
 	}
 	
 	if (jsonData){
-		[request setValue:postLength forHTTPHeaderField:@"Content-length"];
+		[request setValue:postLength forHTTPHeaderField:@"Content-Length"];
 		[request setHTTPBody:jsonData];
 	}
 	
